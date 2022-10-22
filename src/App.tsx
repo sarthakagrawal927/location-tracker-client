@@ -5,7 +5,7 @@ import { useState, useEffect } from 'react';
 import markerIconPng from "leaflet/dist/images/marker-icon.png"
 import { Icon } from 'leaflet';
 
-const initPoints: LatLngTuple = [26.8942, 80.9637]
+const initPoints: LatLngTuple = [27.2716, 80.9637]
 
 const polyline = [
   initPoints,
@@ -53,7 +53,7 @@ function App() {
         >
           <TileLayer
             attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+            url="https://{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}"
           />
           {show.show1 && <>
             <Marker icon={new Icon({ iconUrl: markerIconPng, iconSize: [15, 27], iconAnchor: [7, 27] })}
