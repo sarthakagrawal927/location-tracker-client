@@ -4,6 +4,7 @@ import './App.css';
 import { useState, useEffect } from 'react';
 import markerIconPng from "leaflet/dist/images/marker-icon.png"
 import { Icon } from 'leaflet';
+import { io } from 'socket.io-client'
 
 const initPoints: LatLngTuple = [27.2716, 80.9637]
 
@@ -19,6 +20,7 @@ function App() {
   const [polylines, setPolylines] = useState(polyline)
   const [polylines2, setPolylines2] = useState(polyline)
   const [polylines3, setPolylines3] = useState(polyline)
+
   const addNewPosition = () => {
     setPolylines(polylines =>
       [...polylines, [polylines[polylines.length - 1][0] + Math.random() / 1000, polylines[polylines.length - 1][1] + Math.random() / 1000] as LatLngTuple]
@@ -34,9 +36,20 @@ function App() {
   const [show, setShow] = useState({ show1: true, show2: true, show3: true })
 
   useEffect(() => {
-    const interval = setInterval(addNewPosition, 1000)
-    return () => clearInterval(interval)
+    const socket = io('http://localhost:8080')
+    socket.on('connect', () => console.log(socket.id))
+    socket.on('connect_error', () => {
+      setTimeout(() => socket.connect(), 8080)
+    })
+    socket.on('message', (data: any) => {
+      addNewPosition()
+    })
   }, [])
+
+  const fetchUsers = async () => {
+    const { users } = await (await fetch('http://localhost:8080/users')).json()
+    return users;
+  }
 
   return (
     <div style={{ display: "flex", flexDirection: 'row' }}>
@@ -53,7 +66,7 @@ function App() {
         >
           <TileLayer
             attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-            url="https://{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}"
+            url="https://tile.openstreetmap.org/{z}/{x}/{y}.png"
           />
           {show.show1 && <>
             <Marker icon={new Icon({ iconUrl: markerIconPng, iconSize: [15, 27], iconAnchor: [7, 27] })}
