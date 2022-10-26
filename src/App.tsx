@@ -41,6 +41,7 @@ function App() {
               }
             })
             setActivePhone(key)
+            window.dispatchEvent(new CustomEvent('subscribe', { detail: key }))
           }}>{activeUsers[key].username} {key === activePhone ? 'yes' : 'no'}</div>
         ))}
       </div>
