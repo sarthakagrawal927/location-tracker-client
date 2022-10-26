@@ -4,7 +4,7 @@ import { LocationObject } from '../helpers/types';
 
 const Header = () => {
     useEffect(() => {
-        const socket = io('http://localhost:8080')
+        const socket = io(process.env.REACT_APP_SERVER_URL as string);
         socket.on('connect', () => console.log(socket.id))
 
         socket.on('connect_error', () => {

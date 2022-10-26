@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react'
 import './App.css';
 import Header from './components/Header';
 import MapContainerOP from './components/MapContainerOP';
@@ -13,7 +13,13 @@ function App() {
   }, [])
 
   const fetchUsers = async () => {
-    const { users } = await (await fetch('http://localhost:8080/users')).json()
+    // const { users } = await (await fetch(`${process.env.REACT_APP_SERVER_URL}/users`)).json()
+    const { users } = {
+      users: [{
+        username: 'test',
+        phone: '1234567890',
+      }]
+    }
     let newObj: UserDict = {}
     users.forEach((user: User) => {
       newObj[user.phone] = {
