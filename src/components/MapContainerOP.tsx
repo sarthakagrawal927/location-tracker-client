@@ -12,6 +12,7 @@ const INIT_POINTS: LatLngTuple = [26.8467, 80.9462]
 
 const MapContainerOP = (props: MapContainerOpProps) => {
     const [polylines, setPolylines] = useState<LatLngTuple[]>([])
+    const [ltsTime, setLtsTime] = useState<number>(Date.now())
 
     const addNewPosition = (x: number, y: number) => {
         setPolylines(polylines =>
@@ -20,8 +21,10 @@ const MapContainerOP = (props: MapContainerOpProps) => {
     }
 
     useEffect(() => {
-        window.addEventListener('newPosition', (event) =>
+        window.addEventListener('newPosition', (event) => {
             addNewPosition(event.detail.lat, event.detail.lng)
+            setLtsTime(event.detail.timestamp)
+        }
         )
     }, [])
 
@@ -34,7 +37,10 @@ const MapContainerOP = (props: MapContainerOpProps) => {
                 />
                 {polylines.length > 0 && <Marker icon={new Icon({ iconUrl: markerIconPng, iconSize: [15, 27], iconAnchor: [7, 27] })}
                     position={polylines[polylines.length - 1]}>
-                    <Tooltip>{props.user.username}</Tooltip>
+                    <Tooltip>
+                        <div>{new Date(ltsTime).toLocaleString()}</div>
+                        {props.user.username}
+                    </Tooltip>
                 </Marker>}
                 <Polyline pathOptions={{ color: 'lime' }} positions={polylines} />
             </MapContainer>

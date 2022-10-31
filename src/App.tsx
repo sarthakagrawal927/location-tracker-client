@@ -18,6 +18,9 @@ function App() {
       users: [{
         username: 'test',
         phone: '1234567890',
+      }, {
+        username: 'test2',
+        phone: '1234567891',
       }]
     }
     let newObj: UserDict = {}
