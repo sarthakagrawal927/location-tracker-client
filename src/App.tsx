@@ -1,36 +1,30 @@
 import { useEffect, useState } from 'react'
 import './App.css';
+import SimpleDatePicker from './components/DatePicker';
+import Dropdown from './components/Dropdown';
 import Header from './components/Header';
 import MapContainerOP from './components/MapContainerOP';
-import { User, UserDict } from "./helpers/types";
+import { User, LocationObject } from './helpers/types';
 
 function App() {
-  const [activeUsers, setActiveUsers] = useState<UserDict>({})
-  const [activePhone, setActivePhone] = useState<string>('')
+  const [activeEmployee, setActiveEmployee] = useState<User | null>(null)
+  const [activeDate, setActiveDate] = useState<Date>(new Date());
+  const [polylines, setActivePolylines] = useState<[number, number][]>([]);
 
   useEffect(() => {
-    (async () => await fetchUsers())()
-  }, [])
+    (async () => await fetchAndSetData())()
 
-  const fetchUsers = async () => {
-    // const { users } = await (await fetch(`${process.env.REACT_APP_SERVER_URL}/users`)).json()
-    const { users } = {
-      users: [{
-        username: 'test',
-        phone: '1234567890',
-      }, {
-        username: 'test2',
-        phone: '1234567891',
-      }]
-    }
-    let newObj: UserDict = {}
-    users.forEach((user: User) => {
-      newObj[user.phone] = {
-        active: false,
-        username: user.username,
-      }
-    })
-    setActiveUsers(newObj)
+    // if date today
+    window.dispatchEvent(new CustomEvent('subscribe', { detail: activeEmployee?.phone }))
+  }, [activeDate, activeEmployee])
+
+  const fetchAndSetData = async () => {
+    if (!activeDate || !activeEmployee) return;
+    const stringDate = activeDate.toISOString().slice(0, 10)
+    const data = await (await fetch(`${process.env.REACT_APP_SERVER_URL}/locations?phone=${activeEmployee.phone}&date=${stringDate}`)).json();
+    const newPolylines = data?.locations?.map((dataObj: LocationObject) => [dataObj.lat, dataObj.lng]);
+    console.log({ newPolylines })
+    setActivePolylines(newPolylines);
   }
 
   return (
@@ -40,24 +34,10 @@ function App() {
         <h1>
           People
         </h1>
-        {Object.keys(activeUsers).map((key: string) => (
-          <div key={key} onClick={() => {
-            setActiveUsers({
-              ...activeUsers,
-              [key]: {
-                ...activeUsers[key],
-                active: !activeUsers[key].active,
-              }
-            })
-            setActivePhone(key)
-            window.dispatchEvent(new CustomEvent('subscribe', { detail: key }))
-          }}>{activeUsers[key].username} {key === activePhone ? 'yes' : 'no'}</div>
-        ))}
+        <SimpleDatePicker activeDate={activeDate} setActiveDate={setActiveDate} />
+        <Dropdown activeEmployee={activeEmployee} setActiveEmployee={setActiveEmployee} />
       </div>
-      <MapContainerOP user={{
-        phone: activePhone,
-        username: activeUsers[activePhone]?.username,
-      }} />
+      {activeEmployee && <MapContainerOP user={activeEmployee} polylines={polylines} />}
     </div>
   );
 }

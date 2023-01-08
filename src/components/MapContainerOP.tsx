@@ -6,12 +6,13 @@ import { User } from "../helpers/types";
 
 type MapContainerOpProps = {
     user: User,
+    polylines: LatLngTuple[]
 }
 
 const INIT_POINTS: LatLngTuple = [26.8467, 80.9462]
 
 const MapContainerOP = (props: MapContainerOpProps) => {
-    const [polylines, setPolylines] = useState<LatLngTuple[]>([])
+    const [polylines, setPolylines] = useState<LatLngTuple[]>(props.polylines)
     const [ltsTime, setLtsTime] = useState<number>(Date.now())
 
     const addNewPosition = (x: number, y: number) => {
@@ -19,6 +20,10 @@ const MapContainerOP = (props: MapContainerOpProps) => {
             [...polylines, [x, y] as LatLngTuple]
         )
     }
+
+    useEffect(() => {
+        setPolylines(props.polylines)
+    }, [props.polylines])
 
     useEffect(() => {
         window.addEventListener('newPosition', (event) => {
